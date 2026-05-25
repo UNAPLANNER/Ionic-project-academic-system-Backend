@@ -1,0 +1,31 @@
+{
+  "name": "ionic-project-academic-system-backend",
+  "version": "1.0.0",
+  "description": "Sistema académico móvil aplicación móvil que permite gestionar estudiantes, cursos, evaluaciones y visualización de desempeño académico, incorporando diferentes niveles de acceso según el tipo de usuario.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UNAPLANNER/Ionic-project-academic-system-Backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UNAPLANNER/Ionic-project-academic-system-Backend/issues"
+  },
+  "homepage": "https://github.com/UNAPLANNER/Ionic-project-academic-system-Backend#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "firebase-admin": "^13.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
