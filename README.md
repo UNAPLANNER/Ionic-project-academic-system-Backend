@@ -22,7 +22,7 @@
 
 ---
 
-## 🗺️ Overview
+## Overview
 
 This repository contains the **backend API** of the Academic Management System. It runs on port `3000` and connects to **Firebase Firestore** as the database.
 
@@ -180,7 +180,7 @@ Ionic-project-academic-system-Backend/
 
 ---
 
-## 🔌 API Endpoints
+## API Endpoints
 
 Base URL: `http://localhost:3000`
 
