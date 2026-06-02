@@ -4,29 +4,24 @@ const { auth, db } = require('../config/firebase');
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  // Validate required fields
   if (!email || !password) {
-    return res.status(400).json({ 
-      error: 'Email and password are required' 
-    });
+    return res.status(400).json({ error: 'Email and password are required' });
   }
 
   try {
-    // Search for user in Firestore by email
-    const usersRef = db.collection('users');
-    const snapshot = await usersRef.where('email', '==', email).get();
+    // Look up user in Firestore by email
+    const snapshot = await db.collection('users').where('email', '==', email).get();
 
     if (snapshot.empty) {
-      return res.status(401).json({ 
-        error: 'No account found with this email' 
-      });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    // Get user data
-    const userDoc = snapshot.docs[0];
-    const userData = userDoc.data();
+    const userData = snapshot.docs[0].data();
 
-    // Generate Firebase custom token so client can get an ID token
+    // Verify password against Firebase Auth
+    await auth.getUserByEmail(email);
+
+    // Generate custom token with role claim
     const customToken = await auth.createCustomToken(userData.id, { role: userData.role });
 
     return res.status(200).json({
