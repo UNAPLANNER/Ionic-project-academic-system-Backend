@@ -29,7 +29,9 @@ app.use(express.json());
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
+const studentsRoutes = require('./routes/students.routes');
 app.use('/api/auth', authRoutes);
+app.use('/api/students', studentsRoutes);
 
 //TEST
 app.get('/', (req, res) => {

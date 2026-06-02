@@ -1,6 +1,13 @@
-const { auth } = require('../config/firebase');
+const { auth, db } = require('../config/firebase');
+const jwt = require('jsonwebtoken');
+const { createPublicKey } = require('crypto');
 
-// Verify that Firebase token is valid
+const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+const publicKey = privateKey
+  ? createPublicKey(privateKey).export({ type: 'spki', format: 'pem' })
+  : null;
+
+// Verify that Firebase custom token is valid
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -11,8 +18,17 @@ const verifyToken = async (req, res, next) => {
   const token = authHeader.split('Bearer ')[1];
 
   try {
-    const decoded = await auth.verifyIdToken(token);
-    req.user = decoded;
+    if (!publicKey) {
+      return res.status(500).json({ error: 'Server misconfigured: missing private key' });
+    }
+
+    const decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'] });
+
+    req.user = {
+      uid: decoded.uid,
+      role: decoded.claims?.role ?? null
+    };
+
     next();
   } catch (error) {
     return res.status(401).json({ error: 'Invalid or expired token' });
