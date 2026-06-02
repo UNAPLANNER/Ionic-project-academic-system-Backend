@@ -26,9 +26,12 @@ const login = async (req, res) => {
     const userDoc = snapshot.docs[0];
     const userData = userDoc.data();
 
-    // Return user data (without password)
+    // Generate Firebase custom token so client can get an ID token
+    const customToken = await auth.createCustomToken(userData.id, { role: userData.role });
+
     return res.status(200).json({
       message: 'Login successful',
+      token: customToken,
       user: {
         id: userData.id,
         name: userData.name,
@@ -96,8 +99,12 @@ const register = async (req, res) => {
       createdAt: new Date()
     });
 
+    // Generate Firebase custom token so client can get an ID token
+    const customToken = await auth.createCustomToken(userRecord.uid, { role });
+
     return res.status(201).json({
       message: 'User registered successfully',
+      token: customToken,
       user: {
         id: userRecord.uid,
         name,
