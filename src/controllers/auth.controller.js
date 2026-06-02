@@ -45,12 +45,19 @@ const login = async (req, res) => {
 
 // POST /api/auth/register
 const register = async (req, res) => {
-  const { name, email, role } = req.body;
+  const { name, email, password, role } = req.body;
 
   // Validate required fields
-  if (!name || !email || !role) {
+  if (!name || !email || !password || !role) {
     return res.status(400).json({ 
-      error: 'Name, email and role are required' 
+      error: 'Name, email, password and role are required' 
+    });
+  }
+
+  // Validate password length
+  if (password.length < 6) {
+    return res.status(400).json({ 
+      error: 'Password must be at least 6 characters' 
     });
   }
 
@@ -73,15 +80,52 @@ const register = async (req, res) => {
       });
     }
 
-    // Actual registration is handled by Firebase Auth from the Mobile app
-    // Backend only verifies and stores additional user data
+    // Create user in Firebase Auth
+    const userRecord = await auth.createUser({
+      email,
+      password,
+      displayName: name
+    });
+
+    // Save user data to Firestore with same ID
+    await usersRef.doc(userRecord.uid).set({
+      id: userRecord.uid,
+      name,
+      email,
+      role,
+      createdAt: new Date()
+    });
+
     return res.status(201).json({
       message: 'User registered successfully',
-      user: { name, email, role }
+      user: {
+        id: userRecord.uid,
+        name,
+        email,
+        role
+      }
     });
 
   } catch (error) {
     console.error('Register error:', error);
+    
+    // Handle Firebase specific errors
+    if (error.code === 'auth/email-already-exists') {
+      return res.status(409).json({ 
+        error: 'This email is already registered' 
+      });
+    }
+    if (error.code === 'auth/invalid-email') {
+      return res.status(400).json({ 
+        error: 'Invalid email format' 
+      });
+    }
+    if (error.code === 'auth/weak-password') {
+      return res.status(400).json({ 
+        error: 'Password is too weak' 
+      });
+    }
+    
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

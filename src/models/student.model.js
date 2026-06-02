@@ -4,7 +4,6 @@ const studentSchema = {
   email: String,
   career: String,
   semester: Number,
-  photoUrl: String,
   createdAt: Date
 };
 
