@@ -11,7 +11,6 @@ const serviceAccount = {
   auth_uri: 'https://accounts.google.com/o/oauth2/auth',
   token_uri: 'https://oauth2.googleapis.com/token',
 };
-
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
