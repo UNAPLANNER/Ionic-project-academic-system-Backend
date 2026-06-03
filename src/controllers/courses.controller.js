@@ -1,4 +1,5 @@
 const { db } = require('../config/firebase');
+const { validateCourseFields } = require('../models/course.model');
 
 // GET /api/courses
 // Teacher: only their own courses. Admin: all courses.
@@ -15,13 +16,14 @@ const getCourses = async (req, res) => {
     const courses = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
-        id:            data.id,
-        name:          data.name,
-        code:          data.code,
-        credits:       data.credits,
-        schedule:      data.schedule,
-        teacherId:     data.teacherId,
-        totalStudents: (data.students ?? []).length
+        id: data.id ?? doc.id,
+        name: data.name ?? '',
+        code: data.code ?? '',
+        credits: data.credits ?? 0,
+        schedule: data.schedule ?? '',
+        teacherId: data.teacherId ?? '',
+        students: Array.isArray(data.students) ? data.students : [],
+        totalStudents: Array.isArray(data.students) ? data.students.length : 0
       };
     });
 
@@ -29,6 +31,94 @@ const getCourses = async (req, res) => {
 
   } catch (error) {
     console.error('Get courses error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// POST /api/courses
+// Teacher creates a course assigned to themselves. Admin can optionally send teacherId.
+const createCourse = async (req, res) => {
+  const { name, code, credits, schedule, teacherId } = req.body;
+  const missing = validateCourseFields(req.body);
+
+  if (missing.length > 0) {
+    return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
+  }
+
+  if (typeof credits !== 'number' || credits < 1) {
+    return res.status(400).json({ error: 'credits must be a positive number' });
+  }
+
+  try {
+    const existing = await db.collection('courses').where('code', '==', code).get();
+    if (!existing.empty) {
+      return res.status(409).json({ error: 'A course with this code already exists' });
+    }
+
+    const ref = db.collection('courses').doc();
+    const course = {
+      id: ref.id,
+      name,
+      code,
+      credits,
+      schedule,
+      teacherId: req.user.role === 'admin' ? (teacherId ?? req.user.uid) : req.user.uid,
+      students: [],
+      createdAt: new Date()
+    };
+
+    await ref.set(course);
+
+    return res.status(201).json({ message: 'Course created successfully', course });
+  } catch (error) {
+    console.error('Create course error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// PUT /api/courses/:id
+// Teacher can update only their own courses. Admin can update any course.
+const updateCourse = async (req, res) => {
+  const { id } = req.params;
+  const { name, code, credits, schedule } = req.body;
+  const missing = validateCourseFields(req.body);
+
+  if (missing.length > 0) {
+    return res.status(400).json({ error: `Missing required fields: ${missing.join(', ')}` });
+  }
+
+  if (typeof credits !== 'number' || credits < 1) {
+    return res.status(400).json({ error: 'credits must be a positive number' });
+  }
+
+  try {
+    const ref = db.collection('courses').doc(id);
+    const doc = await ref.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    const current = doc.data();
+    if (req.user.role === 'teacher' && current.teacherId !== req.user.uid) {
+      return res.status(403).json({ error: 'Access forbidden: this course does not belong to you' });
+    }
+
+    const duplicate = await db.collection('courses').where('code', '==', code).get();
+    const duplicateCourse = duplicate.docs.find(courseDoc => courseDoc.id !== id);
+    if (duplicateCourse) {
+      return res.status(409).json({ error: 'A course with this code already exists' });
+    }
+
+    const updates = { name, code, credits, schedule, updatedAt: new Date() };
+    await ref.update(updates);
+
+    return res.status(200).json({
+      message: 'Course updated successfully',
+      course: { id, ...current, ...updates }
+    });
+  } catch (error) {
+    console.error('Update course error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
@@ -92,4 +182,4 @@ const getStudentsByCourse = async (req, res) => {
   }
 };
 
-module.exports = { getCourses, getStudentsByCourse };
+module.exports = { getCourses, getStudentsByCourse, createCourse, updateCourse };
