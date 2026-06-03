@@ -123,6 +123,33 @@ const updateCourse = async (req, res) => {
   }
 };
 
+// DELETE /api/courses/:id
+// Teacher can delete only their own courses. Admin can delete any course.
+const deleteCourse = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const ref = db.collection('courses').doc(id);
+    const doc = await ref.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    const course = doc.data();
+    if (req.user.role === 'teacher' && course.teacherId !== req.user.uid) {
+      return res.status(403).json({ error: 'Access forbidden: this course does not belong to you' });
+    }
+
+    await ref.delete();
+
+    return res.status(200).json({ message: 'Course deleted successfully' });
+  } catch (error) {
+    console.error('Delete course error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // GET /api/courses/:id/students
 // Teacher can only access students from their own courses.
 const getStudentsByCourse = async (req, res) => {
@@ -182,4 +209,4 @@ const getStudentsByCourse = async (req, res) => {
   }
 };
 
-module.exports = { getCourses, getStudentsByCourse, createCourse, updateCourse };
+module.exports = { getCourses, getStudentsByCourse, createCourse, updateCourse, deleteCourse };
