@@ -2,7 +2,7 @@ const { db } = require('../config/firebase');
 const { validateStudentFields } = require('../models/student.model');
 
 // GET /api/students
-const getAllStudents = async (req, res) => {
+const getStudents = async (req, res) => {
   try {
     const snapshot = await db.collection('users').where('role', '==', 'student').get();
 
@@ -100,4 +100,31 @@ const updateStudent = async (req, res) => {
   }
 };
 
-module.exports = { getAllStudents, createStudent, updateStudent };
+// GET /api/students/:id
+const getStudentById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const doc = await db.collection('users').doc(id).get();
+
+    if (!doc.exists || doc.data().role !== 'student') {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    const data = doc.data();
+    return res.status(200).json({
+      id:       data.id,
+      name:     data.name,
+      email:    data.email,
+      career:   data.career   ?? null,
+      semester: data.semester ?? null,
+      photoUrl: data.photoUrl ?? null
+    });
+
+  } catch (error) {
+    console.error('Get student error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+module.exports = { getStudents, getStudentById, createStudent, updateStudent };
