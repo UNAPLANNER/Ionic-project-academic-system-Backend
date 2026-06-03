@@ -43,7 +43,7 @@ const createEvaluation = async (req, res) => {
     }
 };
 
-//GET /api/evaluations/student/:id endpoint
+//GET /api/evaluations/student/:id endpoints
 const getStudentEvaluations = async (req, res) => {
   try {
     const studentId = req.params.id;
@@ -98,7 +98,67 @@ const getStudentEvaluations = async (req, res) => {
   }
 };
 
+//GET ALL EVALUATIONS PROFESOR
+const getEvaluations = async (req, res) => {
+  try {
+    const snapshot = await db.collection("evaluations").get();
+
+    let evaluations = [];
+
+    snapshot.forEach(doc => {
+      evaluations.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    });
+
+    return res.status(200).json(evaluations);
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+};
+//UPDATE EVALUATIONS PROFESOR
+const updateEvaluation = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    await db.collection("evaluations").doc(id).update(req.body);
+
+    return res.status(200).json({
+      message: "Evaluation updated"
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+};
+//DELETE EVALUATION PROFESOR
+const deleteEvaluation = async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    await db.collection("evaluations").doc(id).delete();
+
+    return res.status(200).json({
+      message: "Evaluation deleted"
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
     createEvaluation,
-    getStudentEvaluations
+    getStudentEvaluations,
+    getEvaluations,
+    updateEvaluation,
+    deleteEvaluation
 };
