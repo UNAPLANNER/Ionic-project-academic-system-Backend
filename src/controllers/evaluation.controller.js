@@ -102,11 +102,3 @@ module.exports = {
     createEvaluation,
     getStudentEvaluations
 };
-
-
-
-
-module.exports = {
-  createEvaluation,
-  getStudentEvaluations
-};
