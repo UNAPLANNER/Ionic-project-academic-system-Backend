@@ -195,27 +195,27 @@ Base URL: `http://localhost:3000`
 |--------|----------|-------------|---------------|
 | GET | `/api/students` | Get all students | Yes |
 | GET | `/api/students/:id` | Get student by ID | Yes |
-| POST | `/api/students` | Create new student | Yes (Admin) |
-| PUT | `/api/students/:id` | Update student | Yes (Admin) |
-| DELETE | `/api/students/:id` | Delete student | Yes (Admin) |
+| POST | `/api/students` | Create new student | Yes |
+| PUT | `/api/students/:id` | Update student | Yes  |
+| DELETE | `/api/students/:id` | Delete student | Yes  |
 
 ### Courses
 | Method | Endpoint | Description | Auth required |
 |--------|----------|-------------|---------------|
 | GET | `/api/courses` | Get all courses | Yes |
 | GET | `/api/courses/:id` | Get course by ID | Yes |
-| POST | `/api/courses` | Create new course | Yes (Admin/Teacher) |
-| PUT | `/api/courses/:id` | Update course | Yes (Admin/Teacher) |
-| DELETE | `/api/courses/:id` | Delete course | Yes (Admin) |
+| POST | `/api/courses` | Create new course | Yes  |
+| PUT | `/api/courses/:id` | Update course | Yes  |
+| DELETE | `/api/courses/:id` | Delete course | Yes  |
 
 ### Evaluations
 | Method | Endpoint | Description | Auth required |
 |--------|----------|-------------|---------------|
 | GET | `/api/evaluations` | Get all evaluations | Yes |
 | GET | `/api/evaluations/student/:id` | Get evaluations by student | Yes |
-| POST | `/api/evaluations` | Register evaluation | Yes (Teacher) |
-| PUT | `/api/evaluations/:id` | Update evaluation | Yes (Teacher) |
-| DELETE | `/api/evaluations/:id` | Delete evaluation | Yes (Admin) |
+| POST | `/api/evaluations` | Register evaluation | Yes  |
+| PUT | `/api/evaluations/:id` | Update evaluation | Yes  |
+| DELETE | `/api/evaluations/:id` | Delete evaluation | Yes  |
 
 ### Dashboard
 | Method | Endpoint | Description | Auth required |
