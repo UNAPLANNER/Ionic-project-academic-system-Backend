@@ -30,8 +30,10 @@ app.use(express.json());
 // Routes
 const authRoutes = require('./routes/auth.routes');
 const studentsRoutes = require('./routes/students.routes');
+const courseRoutes = require('./routes/course.routes');
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentsRoutes);
+app.use('/api/courses', courseRoutes);
 
 //TEST
 app.get('/', (req, res) => {
