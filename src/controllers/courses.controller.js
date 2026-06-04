@@ -184,9 +184,8 @@ const getStudentsByCourse = async (req, res) => {
     for (const chunk of chunks) {
       const snap = await db.collection('users')
         .where('id', 'in', chunk)
-        .where('role', '==', 'student')
         .get();
-      studentDocs.push(...snap.docs);
+      studentDocs.push(...snap.docs.filter(doc => doc.data().role === 'student'));
     }
 
     const students = studentDocs.map(doc => {
