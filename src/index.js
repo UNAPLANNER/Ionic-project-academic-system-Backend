@@ -27,6 +27,13 @@ app.use(cors({
 }));
 app.use(express.json());
 
+
+//Routes evaluations
+const evaluationRoutes = require("./routes/evaluation.routes");
+
+app.use("/api/evaluations",evaluationRoutes);
+
+// Ruta de prueba
 // Routes
 const authRoutes = require('./routes/auth.routes');
 const studentsRoutes = require('./routes/students.routes');
