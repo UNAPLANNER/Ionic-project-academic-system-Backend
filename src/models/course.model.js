@@ -8,4 +8,10 @@ const courseSchema = {
   students: Array
 };
 
-module.exports = courseSchema;
+const REQUIRED_FIELDS = ['name', 'code', 'credits', 'schedule'];
+
+function validateCourseFields(body) {
+  return REQUIRED_FIELDS.filter(field => body[field] === undefined || body[field] === '');
+}
+
+module.exports = { courseSchema, validateCourseFields };
