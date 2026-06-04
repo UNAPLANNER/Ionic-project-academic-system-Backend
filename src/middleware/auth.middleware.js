@@ -1,13 +1,6 @@
-const { auth, db } = require('../config/firebase');
-const jwt = require('jsonwebtoken');
-const { createPublicKey } = require('crypto');
+const { auth } = require('../config/firebase');
 
-const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-const publicKey = privateKey
-  ? createPublicKey(privateKey).export({ type: 'spki', format: 'pem' })
-  : null;
-
-// Verify that Firebase custom token is valid
+// Verify that the Firebase ID token sent by the mobile app is valid
 const verifyToken = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -18,15 +11,11 @@ const verifyToken = async (req, res, next) => {
   const token = authHeader.split('Bearer ')[1];
 
   try {
-    if (!publicKey) {
-      return res.status(500).json({ error: 'Server misconfigured: missing private key' });
-    }
-
-    const decoded = jwt.verify(token, publicKey, { algorithms: ['RS256'] });
+    const decoded = await auth.verifyIdToken(token);
 
     req.user = {
       uid: decoded.uid,
-      role: decoded.claims?.role ?? null
+      role: decoded.role ?? null
     };
 
     next();
