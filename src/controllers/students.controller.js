@@ -9,7 +9,7 @@ const getStudents = async (req, res) => {
     const students = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
-        id: data.id,
+        id: data.id ?? doc.id,
         name: data.name,
         email: data.email,
         career: data.career ?? null,
@@ -113,7 +113,7 @@ const getStudentById = async (req, res) => {
 
     const data = doc.data();
     return res.status(200).json({
-      id:       data.id,
+      id:       data.id ?? doc.id,
       name:     data.name,
       email:    data.email,
       career:   data.career   ?? null,
