@@ -1,0 +1,38 @@
+const express = require("express");
+
+const router = express.Router();
+
+const {
+    createEvaluation,
+    getStudentEvaluations,
+    getEvaluations,
+    updateEvaluation,
+    deleteEvaluation
+} = require("../controllers/evaluation.controller");
+
+const {
+    validateEvaluation
+} = require("../middleware/evaluation.middleware");
+
+// POST /api/evaluations
+// Creates a new evaluation after validation
+router.post(
+    "/",
+    validateEvaluation,
+    createEvaluation
+);
+
+// GET /api/evaluations/student/:id
+router.get("/student/:id", getStudentEvaluations);
+
+// GET /api/evaluations PROFESOR
+router.get("/", getEvaluations);
+
+// UPDATE evaluation
+router.put("/:id", updateEvaluation);
+
+// DELETE evaluation
+router.delete("/:id", deleteEvaluation);
+
+
+module.exports = router;
