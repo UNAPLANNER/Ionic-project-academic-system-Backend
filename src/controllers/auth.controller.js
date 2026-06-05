@@ -9,24 +9,33 @@ const login = async (req, res) => {
   }
 
   try {
-    // Look up user in Firestore by email
-    const snapshot = await db.collection('users').where('email', '==', email).get();
+    // Sign in via Firebase Auth REST API to get a real ID token
+    const firebaseRes = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, returnSecureToken: true })
+      }
+    );
 
+    if (!firebaseRes.ok) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const { idToken } = await firebaseRes.json();
+
+    // Fetch user data from Firestore
+    const snapshot = await db.collection('users').where('email', '==', email).get();
     if (snapshot.empty) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     const userData = snapshot.docs[0].data();
 
-    // Verify password against Firebase Auth
-    await auth.getUserByEmail(email);
-
-    // Generate custom token with role claim
-    const customToken = await auth.createCustomToken(userData.id, { role: userData.role });
-
     return res.status(200).json({
       message: 'Login successful',
-      token: customToken,
+      token: idToken,
       user: {
         id: userData.id,
         name: userData.name,

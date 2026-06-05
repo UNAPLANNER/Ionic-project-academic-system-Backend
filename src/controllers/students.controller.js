@@ -9,7 +9,7 @@ const getStudents = async (req, res) => {
     const students = snapshot.docs.map(doc => {
       const data = doc.data();
       return {
-        id: data.id,
+        id: data.id ?? doc.id,
         name: data.name,
         email: data.email,
         career: data.career ?? null,
@@ -113,7 +113,7 @@ const getStudentById = async (req, res) => {
 
     const data = doc.data();
     return res.status(200).json({
-      id:       data.id,
+      id:       data.id ?? doc.id,
       name:     data.name,
       email:    data.email,
       career:   data.career   ?? null,
@@ -127,4 +127,26 @@ const getStudentById = async (req, res) => {
   }
 };
 
-module.exports = { getStudents, getStudentById, createStudent, updateStudent };
+// DELETE /api/students/:id
+const deleteStudent = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const ref = db.collection('users').doc(id);
+    const doc = await ref.get();
+
+    if (!doc.exists || doc.data().role !== 'student') {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    await ref.delete();
+
+    return res.status(200).json({ message: 'Student deleted successfully' });
+
+  } catch (error) {
+    console.error('Delete student error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+module.exports = { getStudents, getStudentById, createStudent, updateStudent, deleteStudent };
