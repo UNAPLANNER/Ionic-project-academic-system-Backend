@@ -38,9 +38,11 @@ app.use("/api/evaluations",evaluationRoutes);
 const authRoutes = require('./routes/auth.routes');
 const studentsRoutes = require('./routes/students.routes');
 const coursesRoutes = require('./routes/courses.routes');
+const usersRoutes = require('./routes/users.routes');
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentsRoutes);
 app.use('/api/courses', coursesRoutes);
+app.use('/api/users', usersRoutes);
 
 //TEST
 app.get('/', (req, res) => {
