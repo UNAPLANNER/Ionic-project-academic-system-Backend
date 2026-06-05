@@ -199,8 +199,48 @@ const updateCourseStudents = async (req, res) => {
   }
 };
 
+// PUT /api/courses/:id/teacher
+// Admin assigns or changes the teacher responsible for a course.
+const updateCourseTeacher = async (req, res) => {
+  const { id } = req.params;
+  const { teacherId } = req.body;
+
+  if (!teacherId || typeof teacherId !== 'string') {
+    return res.status(400).json({ error: 'teacherId is required' });
+  }
+
+  try {
+    const courseRef = db.collection('courses').doc(id);
+    const courseDoc = await courseRef.get();
+
+    if (!courseDoc.exists) {
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    const teacherDoc = await db.collection('users').doc(teacherId).get();
+    if (!teacherDoc.exists || teacherDoc.data().role !== 'teacher') {
+      return res.status(404).json({ error: 'Teacher not found' });
+    }
+
+    const updates = { teacherId, updatedAt: new Date() };
+    await courseRef.update(updates);
+
+    return res.status(200).json({
+      message: 'Course teacher updated successfully',
+      course: {
+        id: courseDoc.id,
+        ...courseDoc.data(),
+        ...updates
+      }
+    });
+  } catch (error) {
+    console.error('Update course teacher error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // GET /api/courses/:id/students
-// Teacher can only access students from their own courses.
+// Teacher can only access students from their own courses. Student can access enrolled courses.
 const getStudentsByCourse = async (req, res) => {
   const { id } = req.params;
 
@@ -215,6 +255,10 @@ const getStudentsByCourse = async (req, res) => {
 
     if (req.user.role === 'teacher' && courseData.teacherId !== req.user.uid) {
       return res.status(403).json({ error: 'Access forbidden: this course does not belong to you' });
+    }
+
+    if (req.user.role === 'student' && !courseData.students?.includes(req.user.uid)) {
+      return res.status(403).json({ error: 'Access forbidden: you are not enrolled in this course' });
     }
 
     const studentIds = courseData.students ?? [];
@@ -263,4 +307,12 @@ const getStudentsByCourse = async (req, res) => {
   }
 };
 
-module.exports = { getCourses, getStudentsByCourse, createCourse, updateCourse, deleteCourse, updateCourseStudents };
+module.exports = {
+  getCourses,
+  getStudentsByCourse,
+  createCourse,
+  updateCourse,
+  deleteCourse,
+  updateCourseStudents,
+  updateCourseTeacher
+};
