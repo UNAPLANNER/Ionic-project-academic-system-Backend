@@ -1,46 +1,86 @@
-const { db } = require("../config/firebase");
+const { db, admin } = require("../config/firebase");
 
 //Post /api/evaluations endpoint
 const createEvaluation = async (req, res) => {
+  try {
+    const {
+      studentId,
+      courseId,
+      type,
+      score,
+      maxScore,
+      date,
+      description
+    } = req.body;
 
-    try {
+    // Build evaluation object
+    const evaluation = {
+      studentId,
+      courseId,
+      type,
+      score,
+      maxScore,
+      date,
+      description
+    };
 
-        const {
-            studentId,
-            courseId,
-            type,
-            score,
-            maxScore,
-            date,
-            description
-        } = req.body;
-        // Build evaluation object
-        const evaluation = {
-            studentId,
-            courseId,
-            type,
-            score,
-            maxScore,
-            date,
-            description
+    // Save evaluation into Firestore collection
+    const docRef = await db
+      .collection("evaluations")
+      .add(evaluation);
+
+    // Search student
+    const studentDoc = await db
+      .collection("users")
+      .doc(studentId)
+      .get();
+
+    // If student exists
+    if (studentDoc.exists) {
+      const studentData = studentDoc.data();
+
+      // If student has a registered device token
+      if (studentData.deviceToken) {
+
+        // Search course to get course name
+        const courseDoc = await db
+          .collection("courses")
+          .doc(courseId)
+          .get();
+
+        // Default value if course is not found
+        const courseName = courseDoc.exists
+          ? courseDoc.data().name
+          : courseId;
+
+        const message = {
+          token: studentData.deviceToken,
+          notification: {
+            title: "New Evaluation",
+            body: `${courseName} - Score: ${score}`
+          }
         };
-        // Save evaluation into Firestore collection
-        const docRef = await db
-            .collection("evaluations")
-            .add(evaluation);
-        // Return created resource with generated id
-        return res.status(201).json({
-            id: docRef.id,
-            ...evaluation
-        });
 
-    } catch (error) {
-        // Handle unexpected server errors
-        return res.status(500).json({
-            message: error.message
-        });
-
+        try {
+          await admin.messaging().send(message);
+        } catch (err) {
+          console.log("Notification skipped:", err.message);
+        }
+      }
     }
+
+    // Return created resource with generated id
+    return res.status(201).json({
+      id: docRef.id,
+      ...evaluation
+    });
+
+  } catch (error) {
+    // Handle unexpected server errors
+    return res.status(500).json({
+      message: error.message
+    });
+  }
 };
 
 //GET /api/evaluations/student/:id endpoints
