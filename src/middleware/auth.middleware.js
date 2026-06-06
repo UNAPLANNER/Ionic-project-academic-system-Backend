@@ -1,4 +1,4 @@
-const { auth } = require('../config/firebase');
+const { auth, db } = require('../config/firebase');
 
 // Verify that the Firebase ID token sent by the mobile app is valid
 const verifyToken = async (req, res, next) => {
@@ -13,9 +13,13 @@ const verifyToken = async (req, res, next) => {
   try {
     const decoded = await auth.verifyIdToken(token);
 
+    // Role comes from Firestore since custom claims are not set on Firebase Auth
+    const userDoc = await db.collection('users').doc(decoded.uid).get();
+    const role = userDoc.exists ? (userDoc.data().role ?? null) : null;
+
     req.user = {
       uid: decoded.uid,
-      role: decoded.role ?? null
+      role
     };
 
     next();
