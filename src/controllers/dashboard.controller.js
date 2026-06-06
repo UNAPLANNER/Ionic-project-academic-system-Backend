@@ -91,3 +91,44 @@ exports.getMetrics = async (req, res) => {
     });
   }
 };
+//performance
+exports.getPerformance = async (req, res) => {
+  try {
+    const coursesSnap = await db.collection('courses').get();
+    const evaluationsSnap = await db.collection('evaluations').get();
+
+    const courses = coursesSnap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    const evaluations = evaluationsSnap.docs.map(doc => doc.data());
+
+    const performanceByCourse = courses.map(course => {
+
+      const courseEvals = evaluations.filter(
+        e => e.courseId === course.id
+      );
+
+      const avg = courseEvals.length
+        ? courseEvals.reduce((sum, e) => sum + (e.score || 0), 0) / courseEvals.length
+        : 0;
+
+      return {
+        courseId: course.id,
+        courseName: course.name,
+        averageScore: Number(avg.toFixed(2)),
+        totalStudents: courseEvals.length
+      };
+    });
+
+    res.json(performanceByCourse);
+
+  } catch (error) {
+    console.error("🔥 PERFORMANCE ERROR:", error);
+    res.status(500).json({
+      message: "Error loading performance",
+      error: error.message
+    });
+  }
+};
