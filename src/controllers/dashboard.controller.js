@@ -85,7 +85,6 @@ exports.getMetrics = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("🔥 DASHBOARD ERROR:", error);
     res.status(500).json({
       message: 'Error loading dashboard metrics',
       error: error.message
