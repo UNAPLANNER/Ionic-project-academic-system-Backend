@@ -39,10 +39,12 @@ const authRoutes = require('./routes/auth.routes');
 const studentsRoutes = require('./routes/students.routes');
 const coursesRoutes = require('./routes/courses.routes');
 const usersRoutes = require('./routes/users.routes');
+const dashboardRoutes = require('./routes/dashboard.routes');
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentsRoutes);
 app.use('/api/courses', coursesRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 //TEST
 app.get('/', (req, res) => {
