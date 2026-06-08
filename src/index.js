@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 const allowedOrigins = [
   'http://localhost:8100',   // Ionic dev server
+  'http://localhost:8101',   // Ionic dev server (puerto alternativo)
   'http://localhost:4200',   // Angular dev server
   'http://localhost',        // Capacitor Android
   'capacitor://localhost',   // Capacitor iOS
