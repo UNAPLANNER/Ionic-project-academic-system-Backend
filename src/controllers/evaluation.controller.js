@@ -1,6 +1,6 @@
-const { db, admin } = require("../config/firebase");
+const { db, auth, admin } = require("../config/firebase");
 
-//Post /api/evaluations endpoint
+//Post /api/evaluations endpoint token
 const createEvaluation = async (req, res) => {
   try {
     const {
@@ -12,7 +12,9 @@ const createEvaluation = async (req, res) => {
       date,
       description
     } = req.body;
-
+    if (!studentId || !courseId || !score) {
+      return res.status(400).json({ message: "Datos incompletos" });
+    }
     // Build evaluation object
     const evaluation = {
       studentId,
@@ -56,12 +58,12 @@ const createEvaluation = async (req, res) => {
         const message = {
           token: studentData.deviceToken,
           notification: {
-            title: "New Evaluation",
+            title: "Nueva evaluación",
             body: `${courseName} - Score: ${score}`
           }
         };
-
         try {
+
           await admin.messaging().send(message);
         } catch (err) {
           console.log("Notification skipped:", err.message);

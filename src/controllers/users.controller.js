@@ -76,4 +76,44 @@ const createTeacher = async (req, res) => {
   }
 };
 
-module.exports = { getTeachers, createTeacher };
+const saveDeviceToken = async (req, res) => {
+  try {
+    const { userId, deviceToken } = req.body;
+
+    if (!userId || !deviceToken) {
+      return res.status(400).json({
+        message: "userId and deviceToken are required"
+      });
+    }
+
+    const userRef = db.collection("users").doc(userId);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({
+        message: "User not found"
+      });
+    }
+
+    await userRef.update({
+      deviceToken
+    });
+
+    return res.json({
+      message: "Token saved successfully"
+    });
+
+  } catch (error) {
+    console.error("Error saving device token:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
+
+
+module.exports = { getTeachers, createTeacher, saveDeviceToken };
+
+
