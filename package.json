@@ -4,7 +4,10 @@
   "description": "Sistema académico móvil aplicación móvil que permite gestionar estudiantes, cursos, evaluaciones y visualización de desempeño académico, incorporando diferentes niveles de acceso según el tipo de usuario.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --forceExit --runInBand",
+    "test:coverage": "jest --coverage --forceExit --runInBand",
+    "lint": "eslint src/ tests/ --ext .js",
+    "build": "node -e \"require('./src/app')\" && echo Build OK",
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"
   },
@@ -26,6 +29,10 @@
     "firebase-admin": "^13.10.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.4.1",
+    "jest": "^30.4.2",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
   }
 }
