@@ -13,7 +13,8 @@ export default [
         exports: "readonly",
         process: "readonly",
         console: "readonly",
-        fetch: "readonly"
+        fetch: "readonly",
+        global: "readonly"
       }
     }
   },
