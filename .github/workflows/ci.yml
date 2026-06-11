@@ -1,26 +1,36 @@
-name: CI - Sistema Academico
+name: CI
 
 on:
-  push:
-    branches: [ main, Test ]
   pull_request:
-    branches: [ main, Test ]
+    branches: [main, Test]
 
 jobs:
-  build:
+  ci:
+    name: Test, Lint & Build
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v3
+    env:
+      FIREBASE_PROJECT_ID:     ${{ secrets.FIREBASE_PROJECT_ID }}
+      FIREBASE_PRIVATE_KEY_ID: ${{ secrets.FIREBASE_PRIVATE_KEY_ID }}
+      FIREBASE_PRIVATE_KEY:    ${{ secrets.FIREBASE_PRIVATE_KEY }}
+      FIREBASE_CLIENT_EMAIL:   ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+      FIREBASE_CLIENT_ID:      ${{ secrets.FIREBASE_CLIENT_ID }}
+      FIREBASE_API_KEY:        ${{ secrets.FIREBASE_API_KEY }}
 
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v3
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
-    
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+        run: npm install
+
+      - name: Run tests
+        run: npm test
 
       - name: Run lint
         run: npm run lint
@@ -30,3 +40,5 @@ jobs:
 
       - name: Run coverage
         run: npm run test:coverage
+      - name: Run build check
+        run: npm run build
