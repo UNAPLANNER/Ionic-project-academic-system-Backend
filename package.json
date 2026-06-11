@@ -4,9 +4,11 @@
   "description": "Sistema académico móvil aplicación móvil que permite gestionar estudiantes, cursos, evaluaciones y visualización de desempeño académico, incorporando diferentes niveles de acceso según el tipo de usuario.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",

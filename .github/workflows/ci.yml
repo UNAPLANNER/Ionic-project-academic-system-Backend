@@ -1,0 +1,29 @@
+name: CI - Sistema Academico
+
+on:
+  push:
+    branches: [ main, Test ]
+  pull_request:
+    branches: [ main, Test ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Run tests
+        run: npm test -- --watch=false --browsers=ChromeHeadless
+
+      - name: Build project
+        run: npx ng build --configuration=productions
