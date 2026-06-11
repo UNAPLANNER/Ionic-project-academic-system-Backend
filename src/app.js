@@ -8,4 +8,8 @@ app.use('/api/evaluations',
   require('./routes/evaluation.routes')
 );
 
+// Dashboard 
+app.use('/dashboard',
+  require('./routes/dashboard.routes')
+);
 module.exports = app;
