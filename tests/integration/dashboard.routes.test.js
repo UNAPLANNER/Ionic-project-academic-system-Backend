@@ -1,7 +1,62 @@
+jest.mock('../../src/config/firebase', () => ({
+  db: { collection: jest.fn() },
+}));
+
 const request = require('supertest');
 const app = require('../../src/app');
+const { db } = require('../../src/config/firebase');
+
+const makeSnap = (docs = []) => ({
+  size: docs.length,
+  docs: docs.map(doc => ({
+    id: doc.id,
+    data: () => doc,
+  })),
+});
 
 describe('Dashboard Routes - Integration Tests', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    const studentsSnap = makeSnap([
+      { id: 'student-1', role: 'student', name: 'Student One' },
+      { id: 'student-2', role: 'student', name: 'Student Two' },
+    ]);
+    const coursesSnap = makeSnap([
+      { id: 'course-1', name: 'Moviles' },
+      { id: 'course-2', name: 'Bases de Datos' },
+    ]);
+    const evaluationsSnap = makeSnap([
+      { studentId: 'student-1', courseId: 'course-1', score: 90 },
+      { studentId: 'student-2', courseId: 'course-2', score: 55 },
+    ]);
+
+    db.collection.mockImplementation(collection => {
+      if (collection === 'users') {
+        return {
+          where: jest.fn().mockReturnValue({
+            get: jest.fn().mockResolvedValue(studentsSnap),
+          }),
+        };
+      }
+
+      if (collection === 'courses') {
+        return {
+          get: jest.fn().mockResolvedValue(coursesSnap),
+        };
+      }
+
+      if (collection === 'evaluations') {
+        return {
+          get: jest.fn().mockResolvedValue(evaluationsSnap),
+        };
+      }
+
+      return {
+        get: jest.fn().mockResolvedValue(makeSnap()),
+      };
+    });
+  });
 
   // POSITIVE TESTS
   describe('GET /api/dashboard/metrics', () => {
