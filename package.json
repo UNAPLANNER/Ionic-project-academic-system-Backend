@@ -4,9 +4,14 @@
   "description": "Sistema académico móvil aplicación móvil que permite gestionar estudiantes, cursos, evaluaciones y visualización de desempeño académico, incorporando diferentes niveles de acceso según el tipo de usuario.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "test": "jest --detectOpenHandles --forceExit --runInBand",
+    "test:courses": "jest tests/unit/courses.controller.test.js tests/integration/courses.routes.test.js --detectOpenHandles --forceExit --runInBand",
+    "test:admin": "jest tests/unit/users.controller.test.js tests/integration/users.routes.test.js --detectOpenHandles --forceExit --runInBand",
+    "test:coverage": "jest --coverage --detectOpenHandles --forceExit --runInBand",
+    "lint": "eslint src/ tests/ --ext .js",
+    "build": "node --check src/app.js && node --check src/index.js && echo Build OK"
   },
   "repository": {
     "type": "git",
@@ -26,6 +31,11 @@
     "firebase-admin": "^13.10.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.4.1",
+    "eslint-plugin-jest": "^29.15.2",
+    "jest": "^30.4.2",
+    "nodemon": "^3.1.14",
+    "supertest": "^7.2.2"
   }
 }

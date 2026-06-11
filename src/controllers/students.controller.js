@@ -127,4 +127,26 @@ const getStudentById = async (req, res) => {
   }
 };
 
-module.exports = { getStudents, getStudentById, createStudent, updateStudent };
+// DELETE /api/students/:id
+const deleteStudent = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const ref = db.collection('users').doc(id);
+    const doc = await ref.get();
+
+    if (!doc.exists || doc.data().role !== 'student') {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    await ref.delete();
+
+    return res.status(200).json({ message: 'Student deleted successfully' });
+
+  } catch (error) {
+    console.error('Delete student error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+module.exports = { getStudents, getStudentById, createStudent, updateStudent, deleteStudent };
