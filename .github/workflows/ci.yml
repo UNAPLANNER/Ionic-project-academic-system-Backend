@@ -2,9 +2,9 @@ name: CI - Sistema Academico
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, Test ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, Test ]
 
 jobs:
   build:
